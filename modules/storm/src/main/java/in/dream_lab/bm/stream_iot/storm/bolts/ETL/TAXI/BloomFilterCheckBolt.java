@@ -69,7 +69,7 @@ public class BloomFilterCheckBolt  extends BaseRichBolt {
 		//l.info("BLOOM2 "+input.toString());	    	
     		collector.emit(input, new Values(msgId, sensorId ,meta,obsType ,obsVal));
     	}
-        collector.ack(input);
+        //collector.ack(input);
 
     }
 

@@ -109,7 +109,7 @@ public class JoinBolt extends BaseRichBolt {
     			//l.info("JOIN2 "+joinedValues.toString());
 			msgIdCountMap.remove(msgIdLong);
     			collector.emit(input, new Values(msgId,meta,"joinedValue", joinedValues.toString()));
-			collector.ack(input);
+			//collector.ack(input);
     		}
     	}
     	/*else add the msgId and create an hashmap for the incoming msg id */
@@ -143,7 +143,7 @@ public class JoinBolt extends BaseRichBolt {
 			//l.info("JOIN4 "+joinedValues.toString()+","+schemaFieldOrderList.toString()+"||||"+map.toString());
     		
     			collector.emit(input, new Values(msgId,meta,"joinedValue", joinedValues.toString()));
-			collector.ack(input);
+			//collector.ack(input);
 
     		}
     	}

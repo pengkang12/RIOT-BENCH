@@ -104,7 +104,7 @@ public class SenMLParseBolt extends BaseRichBolt {
 				for(int j = 0; j < observableFields.size(); j++)
 				{
 					collector.emit(tuple, new Values(msgId, resultMap.get(idField) ,meta.toString() , (String)observableFields.get(j) ,(String) resultMap.get((String)observableFields.get(j))));
- 					collector.ack(tuple);
+ 					//collector.ack(tuple);
 	
 				}				
 			}

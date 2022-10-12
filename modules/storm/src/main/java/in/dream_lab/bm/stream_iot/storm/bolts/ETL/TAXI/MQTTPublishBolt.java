@@ -55,7 +55,7 @@ public class MQTTPublishBolt extends BaseRichBolt {
         map.put(AbstractTask.DEFAULT_KEY, obsVal);
     	Float res = mqttPublishTask.doTask(map);  
     	collector.emit(input, new Values(msgId, meta, obsType, obsVal));
-        collector.ack(input);
+        //collector.ack(input);
 
     }
 

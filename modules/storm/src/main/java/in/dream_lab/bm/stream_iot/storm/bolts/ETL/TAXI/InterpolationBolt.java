@@ -65,14 +65,13 @@ public class InterpolationBolt  extends BaseRichBolt {
 	if(res == null )
         { 
         	collector.emit(input, new Values(msgId, sensorId, meta, obsType ,obsVal));
-        collector.ack(input);
-
+        	//collector.ack(input);
         }
         if(res!=null ) {
           if(res!=Float.MIN_VALUE) 
           {
         	  collector.emit(input, new Values(msgId, sensorId, meta, obsType ,res.toString()));
-        collector.ack(input);
+        	//collector.ack(input);
 
           }
           else {

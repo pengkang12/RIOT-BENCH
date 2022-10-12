@@ -59,7 +59,7 @@ public class AnnotationBolt extends BaseRichBolt {
 	//l.info("ANN "+input.toString()+" " +updatedValue);	
     	
     	collector.emit(input, new Values(msgId,meta,"annoatedValue" ,updatedValue));
-	collector.ack(input);
+	//collector.ack(input);
     }
 
     @Override

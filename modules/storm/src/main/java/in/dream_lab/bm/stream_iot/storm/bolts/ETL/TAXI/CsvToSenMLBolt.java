@@ -60,7 +60,7 @@ public class CsvToSenMLBolt extends BaseRichBolt {
     		//l.info("CSV5 "+updatedValue);
     		
     		collector.emit(input, new Values(msgId,meta,"senml" ,updatedValue));
-		        collector.ack(input);
+		//collector.ack(input);
 
 	}
     }

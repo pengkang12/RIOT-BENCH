@@ -49,7 +49,7 @@ public class JRedis{
                 if(tp.identifier.contains("MSGID")){
                 	//p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, "-1");
                     // put all tuples to each application.
-                    p.hset(this.appName + "_spout", tp.identifier, String.valueOf(tp.ts));
+                    //p.hset(this.appName + "_spout", tp.identifier, String.valueOf(tp.ts));
                     long minutes = (tp.ts - miliseconds)/1000;
  
                     // Group all tuples by each minute for each application.
@@ -58,7 +58,9 @@ public class JRedis{
 
                 }else {
                     //p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, String.valueOf(tp.ts));
-                    p.hset(this.appName + "_sink", tp.identifier, String.valueOf(tp.ts));
+                    //if the array is very big in redis, the latency accuracy will be decreasing dramatically.
+                    // Therefore, we need to group tuples by each minute.
+                    //p.hset(this.appName + "_sink", tp.identifier, String.valueOf(tp.ts));
                     long minutes = (tp.ts - miliseconds)/1000;
                     p.hset(this.appName + "_sink_"+String.valueOf(minutes),
                             tp.identifier, String.valueOf(miliseconds));

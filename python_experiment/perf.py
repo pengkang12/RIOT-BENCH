@@ -40,7 +40,7 @@ def calculate_latency(appName="ETLTopologySys"):
         start = timeit.default_timer()
         spout = r.hgetall(appName+"_spout_"+timestamp)
         stop = timeit.default_timer()
-        print('End1 program Time: ', stop - start)  
+        print('Transfer array for storing tuple start time: ', stop - start)  
         start = timeit.default_timer()
  
         # use pipeline to improve redis effiency. 
@@ -48,31 +48,26 @@ def calculate_latency(appName="ETLTopologySys"):
 	timestamp2 = str(int(timestamp) + 60)
         sink2 = r.hgetall(appName+"_sink_"+timestamp2) 
         stop = timeit.default_timer()
-        print('End3 program Time: ', stop - start)  
+        print('Transferarray for storing tuple end time: ', stop - start)  
         start = timeit.default_timer()
- 
-	print(len(spout))
-	print(len(sink), len(sink2))
 
-
-        #latency = []
         latency_bucket = [ 0 for i in range(len(bucket))]
 	for key, value in spout.items():
             word = key.split("_")
+	    # message example: MSGID_1923232323"
             if word[1] in sink:
+		# start data and end data at same minute interval
                 new_latency = int(sink[word[1]])-int(value)
                 index = get_power(new_latency)
                 latency_bucket[index] += 1
 	    elif word[1] in sink2:
+		# end data at next minute interval.
                 new_latency = int(sink2[word[1]])-int(value) + 60000
                 index = get_power(new_latency)
                 latency_bucket[index] += 1
 
         stop = timeit.default_timer()
-
-        print('End4 program Time: ', stop - start, latency_bucket)  
-        start = timeit.default_timer()
- 
+        print('calculate end to end time: ', stop - start)  
         count = 0
         throughput = sum(latency_bucket)
         tail_latency = 65536
@@ -90,12 +85,8 @@ def calculate_latency(appName="ETLTopologySys"):
        		    else:
 			tail_latency = 65536 
 		    break
-        print("ui2: ", tail_latency, len(spout), throughput, latency_bucket)
-        stop = timeit.default_timer()
-
-        print('End5 program Time: ', stop - start)  
-        start = timeit.default_timer()
- 
+        print("some result: ", tail_latency, len(spout), throughput, latency_bucket)
+        # delete the data from redis	
         keys = r.keys(appName+"_sink_"+timestamp)
         keys = r.keys(appName+"_spout_"+timestamp)
         r.delete(*keys)
@@ -144,16 +135,8 @@ def statistic_info(app_id):
                 capacity += bolts_capacity[component]
         if total_capacity == 0:
             return
-        """ 
-        if 'sink' in each['componentNumTasks']:
-            os.system("echo {0} > /tmp/sink.name".format(each['host']))
-        if 'spout1' in each['componentNumTasks'] or 'spout' in each['componentNumTasks']:
-            os.system("echo {0} > /tmp/spout.name".format(each['host']))
-        """
 
     print("The name of application is {0}, count is {1}".format(data['name'], count))
-    #for key in app_cpu.keys():
-    #     app_cpu[key] /=count
       
     result['latency'], result['throughput'] = calculate_latency(data['name'])
     result['cpu_usage'] = app_cpu
@@ -166,9 +149,7 @@ def statistic_info(app_id):
     for each in data['topologyStats']:
         if each['window'] == "600":
             switch = True
-            #print("window {0} emitted {1} transferred {2} acked {3}".format(each['window'], each['emitted'], each['transferred'], each['acked']))
     if switch== False:
-        #print("window {0} emitted {1} transferred {2} acked {3}".format(600, 0, 0, 0))
         pass 
 
 def getTopologySummary():
@@ -177,9 +158,7 @@ def getTopologySummary():
     for each in data['topologies']:
         if app in each['id']:
             statistic_info(each['id'])
-    print("end experiments")            
 
-print("start program --------------------------")
 import timeit
 
 start = timeit.default_timer()
@@ -193,7 +172,7 @@ if app == "IoT":
 
 stop = timeit.default_timer()
 
-print('End program Time: ', stop - start)  
+print('total running Time: ', stop - start)  
 start = timeit.default_timer()
 
 

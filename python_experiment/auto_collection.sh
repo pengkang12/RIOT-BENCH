@@ -1,3 +1,4 @@
+bash /home/cc/storm/riot-bench/scripts/run_ETL_simply.sh
 redis-cli flushall
 
 for i in {1..5}

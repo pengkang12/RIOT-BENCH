@@ -44,13 +44,23 @@ public class JRedis{
             for(TupleType tp : batch){
                 //this.out.write( this.logStringPrefix + "," + tp.ts + "," + tp.identifier + "\n");
 		        //System.out.println("kpppp_"+tp.identifier);
+                long seconds = tp.ts % 60000;
+                long minutes = tp.ts - seconds;
                 if(tp.identifier.contains("MSGID")){
                 	//p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, "-1");
+                    // put all tuples to each application.
 			        p.hset(this.appName + "_spout", tp.identifier, String.valueOf(tp.ts));
-		        }else {
+                    // Group all tuples by each minute for each application.
+                    p.hset(this.appName + "_spout"+"_"+String.valueOf(minutes),
+                            tp.identifier, String.valueOf(seconds));
+
+                }else {
                     //p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, String.valueOf(tp.ts));
 			        p.hset(this.appName + "_sink", tp.identifier, String.valueOf(tp.ts));
-		        }
+                    p.hset(this.appName + "_sink"+"_"+String.valueOf(minutes),
+                            tp.identifier, String.valueOf(seconds));
+
+                }
 
             }
 	        p.sync();

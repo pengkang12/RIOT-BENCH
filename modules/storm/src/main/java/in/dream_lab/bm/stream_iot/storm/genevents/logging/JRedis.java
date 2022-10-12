@@ -21,13 +21,11 @@ public class JRedis{
     }
  
     public JRedis(String fileName){
-	//System.out.println("kpppp_"+fileName);
+	    //System.out.println("kpppp_"+fileName);
         this.threshold = GlobalConstants.thresholdFlushToLog; //2000 etc
     	String[] fileName2 = fileName.split("/");
-	String[] file = fileName2[fileName2.length-1].split("-");
-	this.appName = file[1];
-	//System.out.println("kpppp_"+this.appName);
-        
+	    String[] file = fileName2[fileName2.length-1].split("-");
+	    this.appName = file[1];
     }
  
     public void batchWriter(long ts,String identifierData) throws Exception
@@ -45,19 +43,18 @@ public class JRedis{
             Pipeline p = jedis.pipelined(); 
             for(TupleType tp : batch){
                 //this.out.write( this.logStringPrefix + "," + tp.ts + "," + tp.identifier + "\n");
-		//System.out.println("kpppp_"+tp.identifier);
+		        //System.out.println("kpppp_"+tp.identifier);
                 if(tp.identifier.contains("MSGID")){
                 	//p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, "-1");
-			p.hset(this.appName + "_spout", tp.identifier, String.valueOf(tp.ts));
-		}else {
-                     	//p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, String.valueOf(tp.ts));
-			p.hset(this.appName + "_sink", tp.identifier, String.valueOf(tp.ts));
-		}
+			        p.hset(this.appName + "_spout", tp.identifier, String.valueOf(tp.ts));
+		        }else {
+                    //p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, String.valueOf(tp.ts));
+			        p.hset(this.appName + "_sink", tp.identifier, String.valueOf(tp.ts));
+		        }
 
             }
-	    p.sync();
+	        p.sync();
             batch.clear();
-
             counter = 1 ;
             batch.add(new TupleType(ts, identifierData));
         }

@@ -71,7 +71,7 @@ public class ETLTopologySimplify
 	   builder.setBolt("BSenMlParseBolt",
 	                new SenMLParseBolt(p_), bolts_num)
                         .setNumTasks(tasks_num)
-	                .shuffleGrouping("spout1").addConfiguration("tags", "edge1");//.setMemoryLoad(32);
+	                .shuffleGrouping("spout1").addConfiguration("tags", "core1");//.setMemoryLoad(32);
 
         	//builder.setBolt("RangeFilterBolt",
 	        //        new RangeFilterBolt(p_), bolts_num)

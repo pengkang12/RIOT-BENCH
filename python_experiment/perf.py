@@ -1,0 +1,201 @@
+#!/bin/python3
+import requests
+import sys
+import time
+import os
+import json
+
+app=sys.argv[1]
+
+import redis
+
+# step 2: define our connection information for Redis
+# Replaces with your configuration information
+redis_host = "master"
+redis_port = 6379
+redis_password = ""
+
+bucket = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536]
+
+def get_power(number):
+     for i in range(17):
+         if number < bucket[i]: 
+             return i 
+     return 16
+     
+
+def calculate_latency(appName="ETLTopologySys"):
+    """calculate latency from Redis data
+    https://blog.bramp.net/post/2018/01/16/measuring-percentile-latency/
+    """
+    throughput = 0 
+    tail_latency = 0
+    try:
+        r = redis.StrictRedis(host=redis_host, port=redis_port, password=redis_password, decode_responses=True)
+        # calculate latency for 1 minute.
+        timestamp = int(time.time() - 90)
+	timestamp = timestamp - timestamp%60
+        timestamp = str(timestamp) 
+
+        start = timeit.default_timer()
+        spout = r.hgetall(appName+"_spout_"+timestamp)
+        stop = timeit.default_timer()
+        print('End1 program Time: ', stop - start)  
+        start = timeit.default_timer()
+ 
+        # use pipeline to improve redis effiency. 
+        sink = r.hgetall(appName+"_sink_"+timestamp)
+	timestamp2 = str(int(timestamp) + 60)
+        sink2 = r.hgetall(appName+"_sink_"+timestamp2) 
+        stop = timeit.default_timer()
+        print('End3 program Time: ', stop - start)  
+        start = timeit.default_timer()
+ 
+	print(len(spout))
+	print(len(sink), len(sink2))
+
+
+        #latency = []
+        latency_bucket = [ 0 for i in range(len(bucket))]
+	for key, value in spout.items():
+            word = key.split("_")
+            if word[1] in sink:
+                new_latency = int(sink[word[1]])-int(value)
+                index = get_power(new_latency)
+                latency_bucket[index] += 1
+	    elif word[1] in sink2:
+                new_latency = int(sink2[word[1]])-int(value) + 60000
+                index = get_power(new_latency)
+                latency_bucket[index] += 1
+
+        stop = timeit.default_timer()
+
+        print('End4 program Time: ', stop - start, latency_bucket)  
+        start = timeit.default_timer()
+ 
+        count = 0
+        throughput = sum(latency_bucket)
+        tail_latency = 65536
+        if throughput == 0:
+	    tail_latency = 0
+	else:
+            for i in range(len(bucket)):
+            	count += latency_bucket[i]
+		latency_bucket[i] = count
+                if count*1.0/throughput >=0.95:
+		    if i == 0:
+                        tail_latency = 1
+                    elif i < len(bucket):
+                    	tail_latency = bucket[i-1] + (bucket[i] - bucket[i-1])*(0.95*throughput - latency_bucket[i-1])/(latency_bucket[i] - latency_bucket[i-1]+1)
+       		    else:
+			tail_latency = 65536 
+		    break
+        print("ui2: ", tail_latency, len(spout), throughput, latency_bucket)
+        stop = timeit.default_timer()
+
+        print('End5 program Time: ', stop - start)  
+        start = timeit.default_timer()
+ 
+        keys = r.keys(appName+"_sink_"+timestamp)
+        keys = r.keys(appName+"_spout_"+timestamp)
+        r.delete(*keys)
+
+    except Exception as e:
+        print(e)
+    return tail_latency, len(spout) 
+
+
+url = "http://localhost:8080/api/v1/topology/"
+
+def statistic_info(app_id):
+    result = {}
+
+    r = requests.get(url+app_id)
+    data = r.json()
+    #print(data)
+    print("\nstart experiment------------------------------")
+    total_execute = 0
+    total_capacity = 0 
+    bolts_capacity = {}
+    sink_data = {}
+    for each in data['bolts']:
+        # sink may influence our results. Therefore, we don't use sink as metrics.  
+        if 'sink' in each['boltId']:
+            sink_data = each
+            continue
+        total_capacity += float(each['capacity'])
+        print("boltId {0} capacity {1}".format(each['boltId'], str(each['capacity'])))
+        bolts_capacity[each['boltId']] = float(each['capacity'])
+    #print("{0}".format(data['bolts']))
+    #collect container cpu usage for each minute. we should calculate cpu usage, then run collect_container_cpu.py to produce new data for next minute. 
+    cpu = {}
+    count = 0
+        
+    #os.system("python collect_container_cpu.py &")
+   
+    # calculate cpu usage for application's worker .
+    app_cpu = {}
+    capacity_ratio = {}
+    for each in data['workers']:
+        capacity = 0
+        print("{0} {1}".format(each['host'], each['componentNumTasks']))
+        for component in each['componentNumTasks'].keys():
+            if component in bolts_capacity:
+                capacity += bolts_capacity[component]
+        if total_capacity == 0:
+            return
+        """ 
+        if 'sink' in each['componentNumTasks']:
+            os.system("echo {0} > /tmp/sink.name".format(each['host']))
+        if 'spout1' in each['componentNumTasks'] or 'spout' in each['componentNumTasks']:
+            os.system("echo {0} > /tmp/spout.name".format(each['host']))
+        """
+
+    print("The name of application is {0}, count is {1}".format(data['name'], count))
+    #for key in app_cpu.keys():
+    #     app_cpu[key] /=count
+      
+    result['latency'], result['throughput'] = calculate_latency(data['name'])
+    result['cpu_usage'] = app_cpu
+    # result['throughput'] = sink_data["executed"]
+    with open('/tmp/skopt_input_{0}.txt'.format(data['name']), 'a+') as f: 
+        f.write(json.dumps(result)+"\n")
+    print("result is ", result)
+
+    switch = False
+    for each in data['topologyStats']:
+        if each['window'] == "600":
+            switch = True
+            #print("window {0} emitted {1} transferred {2} acked {3}".format(each['window'], each['emitted'], each['transferred'], each['acked']))
+    if switch== False:
+        #print("window {0} emitted {1} transferred {2} acked {3}".format(600, 0, 0, 0))
+        pass 
+
+def getTopologySummary():
+    r = requests.get(url+"summary")
+    data = r.json()
+    for each in data['topologies']:
+        if app in each['id']:
+            statistic_info(each['id'])
+    print("end experiments")            
+
+print("start program --------------------------")
+import timeit
+
+start = timeit.default_timer()
+
+
+getTopologySummary()
+#os.system("python BO/bayesian_optimization.py")
+if app == "IoT":
+    #os.system("python BO/bayesian_optimization.py >> /tmp/bo.log")
+    pass
+
+stop = timeit.default_timer()
+
+print('End program Time: ', stop - start)  
+start = timeit.default_timer()
+
+
+start = timeit.default_timer()
+

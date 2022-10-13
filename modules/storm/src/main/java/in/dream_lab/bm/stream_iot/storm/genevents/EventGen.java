@@ -244,12 +244,6 @@ class SubEventGen implements Runnable {
          //long[] poissionWindow = {
          //        23, 12, 7, 5, 5, 6, 9, 15, 29, 54, 116, 277, 526, 2500, 10000
          //};
-        long waitingToStart = System.currentTimeMillis() % 60000;
-        try{
-            Thread.sleep(waitingToStart);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
 
         long bigWindowStartTime = windowStartTime;
         int bigLoc =0;

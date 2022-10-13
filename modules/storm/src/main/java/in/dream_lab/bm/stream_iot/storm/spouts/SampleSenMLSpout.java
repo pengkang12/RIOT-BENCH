@@ -100,6 +100,12 @@ public class SampleSenMLSpout extends BaseRichSpout implements ISyntheticEventGe
 		this.eventGen = new EventGen(this,this.scalingFactor);
 		this.eventQueue = new LinkedBlockingQueue<List<String>>();
 		String uLogfilename=this.outSpoutCSVLogFileName+msgId;
+		long waitingToStart = System.currentTimeMillis() % 60000;
+		try{
+			Thread.sleep(waitingToStart);
+		} catch ( Exception e) {
+			e.printStackTrace();
+		}
 		this.eventGen.launch(this.csvFileName, uLogfilename, -1, true); //Launch threads
 
 		ba=new BatchedFileLogging(uLogfilename, context.getThisComponentId());

@@ -270,7 +270,7 @@ class SubEventGen implements Runnable {
 			        if (bigLoc == dynamicWorkloadWindow.length) bigLoc = 0;
 			        break;
 		        }
-		        if (currentTs - windowStartTime >= 6000){
+		        if (currentTs - windowStartTime >= 4000){
 			        windowStartTime = currentTs;
 			        poissionLoc += 1;
 			        if (poissionLoc == poissionWindow.length ) poissionLoc = 0;

@@ -240,10 +240,10 @@ class SubEventGen implements Runnable {
 
         //poission paramater is 5.
 	    //long[] poissionWindow = {2500, 1250, 769, 625, 588, 769, 1000, 1666, 2500, 5000};
- 	    //long[] poissionWindow = {250, 125, 77, 63, 59, 77, 100, 166, 250, 500};
-         long[] poissionWindow = {
-                 23, 12, 7, 5, 5, 6, 9, 15, 29, 54, 116, 277, 526, 2500, 10000
-         };
+ 	    long[] poissionWindow = {250, 125, 77, 63, 59, 77, 100, 166, 250, 500, 500, 1000, 1000, 1000, 1000};
+         //long[] poissionWindow = {
+         //        23, 12, 7, 5, 5, 6, 9, 15, 29, 54, 116, 277, 526, 2500, 10000
+         //};
         long waitingToStart = System.currentTimeMillis() % 60000;
         try{
             Thread.sleep(waitingToStart);

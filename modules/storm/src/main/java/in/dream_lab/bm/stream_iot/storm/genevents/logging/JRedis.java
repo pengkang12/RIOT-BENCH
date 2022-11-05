@@ -42,23 +42,15 @@ public class JRedis{
             Jedis jedis = new Jedis("192.168.122.204", 6379);
             Pipeline p = jedis.pipelined(); 
             for(TupleType tp : batch){
-                //this.out.write( this.logStringPrefix + "," + tp.ts + "," + tp.identifier + "\n");
-		        //System.out.println("kpppp_"+tp.identifier);
-
                 long miliseconds = tp.ts % 60000;
                 if(tp.identifier.contains("MSGID")){
-                    String[] ops = tp.identifier.split("ID_");
-                    System.out.println("kpppp_"+ops[1]);
-
                 	//p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, "-1");
                     // put all tuples to each application.
                     //p.hset(this.appName + "_spout", tp.identifier, String.valueOf(tp.ts));
                     long minutes = (tp.ts - miliseconds)/1000;
- 
                     // Group all tuples by each minute for each application.
                     p.hset(this.appName + "_spout_"+String.valueOf(minutes),
                             tp.identifier, String.valueOf(miliseconds));
-
                 }else {
                     //p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, String.valueOf(tp.ts));
                     //if the array is very big in redis, the latency accuracy will be decreasing dramatically.

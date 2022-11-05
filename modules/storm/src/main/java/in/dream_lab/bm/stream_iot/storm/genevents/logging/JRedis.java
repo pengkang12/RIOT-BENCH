@@ -60,8 +60,6 @@ public class JRedis{
                             tp.identifier, String.valueOf(miliseconds));
 
                 }else {
-                    if (Integer.parseInt(tp.identifier) % 5 != 0 )
-                        continue;
                     //p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, String.valueOf(tp.ts));
                     //if the array is very big in redis, the latency accuracy will be decreasing dramatically.
                     // Therefore, we need to group tuples by each minute.

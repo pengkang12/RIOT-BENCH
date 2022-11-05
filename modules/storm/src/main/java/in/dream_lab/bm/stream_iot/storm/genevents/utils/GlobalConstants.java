@@ -12,7 +12,7 @@ import java.net.UnknownHostException;
 public class GlobalConstants {
 	public static final int numThreads = 1;  // change it to 4 etc
 	public static final double accFactor = 0.01;
-	public static final int thresholdFlushToLog = 1000;  //100
+	public static final int thresholdFlushToLog = 100;  //100
 	public static final String defaultBoltDirectory = "/var/tmp/";  //can be changed to tetc-final/dataset/
 	public static String dataSetType = "PLUG";  //IT CAN BE STALE USE WITH CAUTION
 	public static String expNum = "0";  //IT CAN BE STALE USE WITH CAUTION

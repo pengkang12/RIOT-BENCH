@@ -48,8 +48,7 @@ public class JRedis{
                 long miliseconds = tp.ts % 60000;
                 if(tp.identifier.contains("MSGID")){
                     String[] ops = tp.identifier.split("ID_");
-                    if (Integer.parseInt(ops[1]) % 5 != 0 )
-                        continue;
+                    System.out.println("kpppp_"+ops[1]);
 
                 	//p.set(this.appName + "_"+tp.ts + "_" + tp.identifier, "-1");
                     // put all tuples to each application.

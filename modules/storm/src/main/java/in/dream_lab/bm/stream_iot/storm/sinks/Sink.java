@@ -47,8 +47,9 @@ public class Sink extends BaseRichBolt {
         //collector.emit(input,new Values(msgId));
         try {
         	//ba.batchLogwriter(System.currentTimeMillis(),msgId);
-		jr.batchWriter(System.currentTimeMillis(), msgId);
-// ba.batchLogwriter(System.currentTimeMillis(),msgId+","+exe_time);//addon
+            if (Integer.parseInt(msgId) % 5 == 0)
+		        jr.batchWriter(System.currentTimeMillis(), msgId);
+            // ba.batchLogwriter(System.currentTimeMillis(),msgId+","+exe_time);//addon
         } catch (Exception e) {
             e.printStackTrace();
         }

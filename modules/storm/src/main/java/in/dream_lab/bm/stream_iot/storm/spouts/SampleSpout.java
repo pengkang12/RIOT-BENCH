@@ -80,7 +80,8 @@ public class SampleSpout extends BaseRichSpout implements ISyntheticEventGen {
 			try {
 //				msgId++;
 				//ba.batchLogwriter(System.currentTimeMillis(),"MSGID," + msgId);
-				jr.batchWriter(System.currentTimeMillis(),"MSGID_" + msgId);
+				if (msgId % 5 == 0)
+					jr.batchWriter(System.currentTimeMillis(),"MSGID_" + msgId);
 				//ba.batchLogwriter(System.nanoTime(),"MSGID," + msgId);
 			} catch (Exception e) {
 				e.printStackTrace();

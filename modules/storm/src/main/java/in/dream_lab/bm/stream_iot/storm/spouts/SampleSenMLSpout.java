@@ -74,9 +74,8 @@ public class SampleSenMLSpout extends BaseRichSpout implements ISyntheticEventGe
 			try 
 			{
 				//ba.batchLogwriter(System.currentTimeMillis(),"MSGID," + msgId);
-				jr.batchWriter(System.currentTimeMillis(),"MSGID_" + msgId);
-
-
+				if (msgId % 5 == 0)
+					jr.batchWriter(System.currentTimeMillis(),"MSGID_" + msgId);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

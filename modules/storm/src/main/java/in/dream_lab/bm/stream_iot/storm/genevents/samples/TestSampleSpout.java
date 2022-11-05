@@ -77,7 +77,6 @@ public class TestSampleSpout extends BaseRichSpout implements ISyntheticEventGen
 			values.add(Long.toString(msgId));
 			this._collector.emit(values);
 			try {
-//				msgId++;
 				ba.batchLogwriter(System.currentTimeMillis(),"MSGID," + msgId);
 				jr.batchWriter(System.currentTimeMillis(),"MSGID_" + msgId);
 				//ba.batchLogwriter(System.nanoTime(),"MSGID," + msgId);

@@ -47,7 +47,7 @@ public class JRedis{
 
                 long miliseconds = tp.ts % 60000;
                 if(tp.identifier.contains("MSGID")){
-                    String[] ops = tp.identifier.split("_");
+                    String[] ops = tp.identifier.split("ID_");
                     if (Integer.parseInt(ops[1]) % 5 != 0 )
                         continue;
 
